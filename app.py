@@ -7,6 +7,8 @@ from flask import Flask, request, jsonify, render_template
 import boto3
 import json
 
+app = Flask(__name__)
+
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg'}
 
 def allowed_file(filename):
