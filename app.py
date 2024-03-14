@@ -65,6 +65,21 @@ def create_app():
         files = File.query.all()
 
         return render_template("index.html", files=files)
+    
+    @app.route('/upload', methods=['POST'])
+    def handle_upload():
+        file = request.files['file']
+        file_data = file.read()
+        file_name = file.filename
+    
+    
+    # Trigger the Lambda function
+        report = trigger_lambda_function(file_name)
+    
+    # Process the report as needed
+        return jsonify({'report': report})
+
+
 
     return app
 
