@@ -19,12 +19,12 @@
     {% endfor %}
 
     <script>
-        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+        document.getElementById('uploadForm').addEventListener('Upload', async function(event) {
             event.preventDefault();
             const formData = new FormData();
             formData.append('file', document.getElementById('fileInput').files[0]);
             try {
-                const response = await fetch('http://backend-service-ip:5000/upload', {
+                const response = await fetch('http://3.111.217.75:5000/upload', {
                     method: 'POST',
                     body: formData
                 });
