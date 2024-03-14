@@ -47,5 +47,5 @@ def trigger_lambda_function(file_name):
 
 @app.route('/')
 def index():
-    return render_template('index.html',files=files)
+    return render_template('index.html')
 
