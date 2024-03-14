@@ -7,8 +7,6 @@ from flask import Flask, request, jsonify, render_template
 import boto3
 import json
 
-app = Flask(__name__)
-
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg'}
 
 def allowed_file(filename):
@@ -25,7 +23,7 @@ class File(db.Model):
     url = db.Column(db.String(1000))  # New column to store the pre-signed URL
 
 
-lambda_client = boto3.client('lambda',region_name='ap-south-1')
+##lambda_client = boto3.client('lambda',region_name='ap-south-1')
 
 def create_app():
     app = Flask(__name__)
@@ -69,6 +67,8 @@ def create_app():
         files = File.query.all()
 
         return render_template("index.html", files=files)
+    
+    return app
 
 
 def trigger_lambda_function(file_name):
