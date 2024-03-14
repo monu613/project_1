@@ -8,28 +8,35 @@
 <body>
     <h3>Upload to S3</h3>
 
-    <form method="POST" enctype="multipart/form-data" style="margin-bottom: 30px;">
-        <input type="file" name="file-to-save" />
-        <button>Upload</button>
+    <form id="uploadForm" method="POST" enctype="multipart/form-data" style="margin-bottom: 30px;">
+        <input type="file" id="fileInput" name="file-to-save" />
+        <button type="submit">Upload</button>
     </form>
-    
 
-    {% for file in files %}
-    <div>{{ file.original_filename }} - <a href="https://{{ file.bucket }}.s3.{{ file.region }}.amazonaws.com/{{ file.filename }}">{{ file.filename }}</a></div>
-    {% endfor %}
+    <div id="loading" style="display: none;">Loading...</div>
+    <div id="output"></div>
 
     <script>
         document.getElementById('uploadForm').addEventListener('submit', async function(event) {
             event.preventDefault();
             const formData = new FormData();
             formData.append('file', document.getElementById('fileInput').files[0]);
+
+            // Show loading page
+            document.getElementById('loading').style.display = 'block';
+
             try {
                 const response = await fetch('http://3.111.217.75:5000/upload', {
                     method: 'POST',
                     body: formData
                 });
                 const data = await response.json();
-                document.getElementById('output').innerText = data.output;
+
+                // Hide loading page
+                document.getElementById('loading').style.display = 'none';
+
+                // Display Lambda function response
+                document.getElementById('output').innerText = data.report;
             } catch (error) {
                 console.error('Error:', error);
             }
