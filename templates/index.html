@@ -37,10 +37,7 @@
             try {
                 const response = await fetch('http://3.111.217.75:5000/upload', {
                     method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Amz-Invocation-Type': 'Event' // Set the invocation type to 'Event'
-                    }
+                    body: formData
                 });
 
                 const data = await response.json();
