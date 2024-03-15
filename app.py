@@ -90,7 +90,7 @@ def trigger_lambda_function(file_name):
         InvocationType='Event',  # Use 'RequestResponse' for synchronous execution
         Payload=json.dumps({'file_name': file_name}),
     )
-    return response
+    return response['Payload'].read().decode('utf-8')
 
 
 
