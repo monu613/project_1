@@ -27,6 +27,7 @@ class File(db.Model):
 
 def create_app():
     app = Flask(__name__)
+    app.debug = True
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
 
     db.init_app(app)
