@@ -62,8 +62,8 @@ def handle_upload():
                                                     ExpiresIn=3600)  # Link expires in 1 hour
             res = trigger_lambda_function(new_filename)
             print('printing res')
-            print(res)  
-            return jsonify({'report': res})
+            print(res.read().decode('utf-8'))  
+            return jsonify({'output': res})
         except NoCredentialsError:
             return "Credentials are not available for AWS S3."
 
