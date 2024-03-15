@@ -60,10 +60,10 @@ def handle_upload():
                                                     Params={'Bucket': bucket_name,
                                                             'Key': new_filename},
                                                     ExpiresIn=3600)  # Link expires in 1 hour
-            res = trigger_lambda_function(new_filename)
+            rpt = trigger_lambda_function(new_filename)
             print('printing res')
-            print(res)  
-            return jsonify({'report': res})
+            print(rpt)  
+            return jsonify({'report': rpt})
         except NoCredentialsError:
             return "Credentials are not available for AWS S3."
 
@@ -95,11 +95,14 @@ def trigger_lambda_function(file_name):
     print("printing lambda response")
 
     print(response)
+    
     temp =response['Payload'].read().decode('utf-8')
+
     final = temp['report'][0]
+
     print('extracted_response')
     print(final)
-    return str(final)
+    return response['Payload'].read().decode('utf-8')
 
 
 
