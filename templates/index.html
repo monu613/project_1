@@ -26,7 +26,7 @@
                     body: formData
                 });
                 const data = await response.json();
-                document.getElementById('output').innerText = data.output;
+                document.getElementById('output').innerText = data.report;
             } catch (error) {
                 console.error('Error:', error);
             }
