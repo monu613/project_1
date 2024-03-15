@@ -21,7 +21,7 @@
             const formData = new FormData();
             formData.append('file', document.getElementById('fileInput').files[0]);
             try {
-                const response = await fetch('http://3.111.217.75:5000/upload', {
+                const response = await fetch('http://107.21.246.79:8080/upload', {
                     method: 'POST',
                     body: formData
                 });
