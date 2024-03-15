@@ -9,6 +9,8 @@ import json
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg'}
 
+app = Flask(__name__)
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -26,7 +28,7 @@ class File(db.Model):
 
 
 def create_app():
-    app = Flask(__name__)
+
     app.debug = True
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
 
@@ -90,3 +92,8 @@ def trigger_lambda_function(file_name):
         Payload=json.dumps({'file_name': file_name}),
     )
     return response
+
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
