@@ -93,7 +93,7 @@ def trigger_lambda_function(file_name):
     )
     print("printing lambda response")
     print(response)
-    return response['Payload'].decode('utf-8')
+    return response['Payload'].read().decode('utf-8')
 
 
 
