@@ -32,7 +32,7 @@ def create_app():
 
     db.init_app(app)
 
-    @app.route("/submit", methods=["GET", "POST"])
+    @app.route("/", methods=["GET", "POST"])
     def index():
         if request.method == "POST":
             uploaded_file = request.files["file-to-save"]
