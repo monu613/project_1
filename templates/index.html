@@ -8,9 +8,10 @@
 <body>
     <h3>Upload to S3</h3>
 
-    <form method="POST" enctype="multipart/form-data" style="margin-bottom: 30px;">
-        <input type="file" name="file-to-save" />
-        <button>Upload</button>
+    <!-- Form for file upload -->
+    <form id="uploadForm" method="POST" enctype="multipart/form-data" style="margin-bottom: 30px;">
+        <input type="file" id="fileInput" name="file-to-save" />
+        <button id="uploadButton">Upload</button>
     </form>
 
     <!-- Loading page while waiting for Lambda completion -->
@@ -46,7 +47,7 @@
 
                 // Show result page
                 document.getElementById('resultPage').style.display = 'block';
-                document.getElementById('output').innerText = data.output;
+                document.getElementById('output').innerText = data.report; // Display the Lambda response
             } catch (error) {
                 console.error('Error:', error);
             }
