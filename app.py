@@ -61,6 +61,7 @@ def handle_upload():
                                                             'Key': new_filename},
                                                     ExpiresIn=3600)  # Link expires in 1 hour
             res = trigger_lambda_function(new_filename)
+            print('printing res')
             print(res)  
             return jsonify({'report': res})
         except NoCredentialsError:
@@ -96,7 +97,7 @@ def trigger_lambda_function(file_name):
     print(response)
 
     print('extracted_response')
-    print(response['Payload'].read())
+    print(response['Payload'].read().decode('utf-8'))
     return response['Payload'].read().decode('utf-8')
 
 
