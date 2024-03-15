@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify, render_template
 import boto3
 import json
 
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg'}
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'csv'}
 
 app = Flask(__name__)
 
@@ -101,7 +101,7 @@ def trigger_lambda_function(file_name):
     #final = temp['report'][0]
 
     print('extracted_response')
-    #print(final)
+    print(temp)
     return response['Payload'].read().decode('utf-8')
 
 
