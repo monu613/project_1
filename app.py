@@ -36,11 +36,11 @@ def create_app():
         if request.method == "POST":
             uploaded_file = request.files["file-to-save"]
             if not allowed_file(uploaded_file.filename):
-                return "FILE NOT ALLOWED!"
+                return "{uploaded_file.filename}" + "File is not allowed!"
 
             new_filename = uuid.uuid4().hex + '.' + uploaded_file.filename.rsplit('.', 1)[1].lower()
 
-            bucket_name = "intital-code-bucket"  # Replace with your S3 bucket name
+            bucket_name = "hackathon2024-debugkings"  # Replace with your S3 bucket name
             s3 = boto3.client('s3')
 
             try:
@@ -51,12 +51,12 @@ def create_app():
                                                      Params={'Bucket': bucket_name,
                                                              'Key': new_filename},
                                                      ExpiresIn=3600)  # Link expires in 1 hour
-                trigger_lambda_function(new_filename)    
+                #trigger_lambda_function(new_filename)    
             except NoCredentialsError:
                 return "Credentials are not available for AWS S3."
 
             file = File(original_filename=uploaded_file.filename, filename=new_filename,
-                        bucket=bucket_name, region="ap-south-1", url=file_url)
+                        bucket=bucket_name, region="us-east-1", url=file_url)
 
             db.session.add(file)
             db.session.commit()
@@ -72,7 +72,7 @@ def create_app():
 
 
 def trigger_lambda_function(file_name):
-    lambda_client = boto3.client('lambda', region_name='ap-south-1')  # Replace with your Lambda region
+    lambda_client = boto3.client('lambda', region_name='us-east-1')  # Replace with your Lambda region
     response = lambda_client.invoke(
         FunctionName='f1',
         InvocationType='Event',  # Use 'RequestResponse' for synchronous execution
