@@ -96,7 +96,7 @@ def trigger_lambda_function(file_name):
 
     print(response)
     temp =response['Payload'].read().decode('utf-8')
-    final = temp['report']
+    final = temp['report'][0]
     print('extracted_response')
     print(final)
     return str(final)
