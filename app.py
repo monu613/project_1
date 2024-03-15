@@ -39,7 +39,10 @@ def index():
 @app.route("/upload", methods=["GET", "POST"])
 def handle_upload():
     if request.method == "POST":
-        uploaded_file = request.files["file-to-save"]
+        uploaded_file = request.files['file']
+        # file_data = uploaded_file.read()
+        # file_name = uploaded_file.filename
+        
         if not allowed_file(uploaded_file.filename):
             return "{uploaded_file.filename}" + "File is not allowed!"
 
