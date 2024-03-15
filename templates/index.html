@@ -6,13 +6,23 @@
     <title>File Upload</title>
 </head>
 <body>
-    <h3>Upload to S3</h3>
+
+
+    <h1>Upload a File</h1>
+    <form method="POST" id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="fileInput" name="file-to-save">
+        <button type="submit">Upload</button>
+    </form>
+    <div id="output"></div>
+
+
+    <!-- <h3>Upload to S3</h3>
 
     <form method="POST" enctype="multipart/form-data" style="margin-bottom: 30px;">
         <input type="file" name="file-to-save" />
         <button>Upload</button>
     </form>
-    
+     -->
 
     <script>
         document.getElementById('uploadForm').addEventListener('submit', async function(event) {
