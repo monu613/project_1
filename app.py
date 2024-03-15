@@ -92,6 +92,10 @@ def trigger_lambda_function(file_name):
         Payload=json.dumps({'file_name': file_name}),
     )
     print("printing lambda response")
+
+    print(response)
+
+    print('extracted_response')
     print(response['Payload'].read().decode('utf-8'))
     return response['Payload'].read().decode('utf-8')
 
