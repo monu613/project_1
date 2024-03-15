@@ -8,6 +8,7 @@
 <body>
     <h3>Upload to S3</h3>
 
+    <!-- Form for file upload -->
     <form id="uploadForm" method="POST" enctype="multipart/form-data" style="margin-bottom: 30px;">
         <input type="file" id="fileInput" name="file-to-save" />
         <button id="uploadButton">Upload</button>
@@ -36,7 +37,10 @@
             try {
                 const response = await fetch('http://3.111.217.75:5000/upload', {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    headers: {
+                        'X-Amz-Invocation-Type': 'Event' // Set the invocation type to 'Event'
+                    }
                 });
 
                 const data = await response.json();
