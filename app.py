@@ -39,6 +39,7 @@ def index():
 @app.route("/upload", methods=["GET", "POST"])
 def handle_upload():
     if request.method == "POST":
+        print('method_started')
         uploaded_file = request.files['file']
         # file_data = uploaded_file.read()
         # file_name = uploaded_file.filename
