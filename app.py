@@ -23,7 +23,7 @@ class File(db.Model):
     url = db.Column(db.String(1000))  # New column to store the pre-signed URL
 
 
-##lambda_client = boto3.client('lambda',region_name='ap-south-1')
+
 
 def create_app():
     app = Flask(__name__)
@@ -38,7 +38,7 @@ def create_app():
             if not allowed_file(uploaded_file.filename):
                 return "{uploaded_file.filename}" + "File is not allowed!"
 
-            new_filename = uuid.uuid4().hex + '.' + uploaded_file.filename.rsplit('.', 1)[1].lower()
+            new_filename = uploaded_file.filename + uuid.uuid4().hex + '.' + uploaded_file.filename.rsplit('.', 1)[1].lower()
 
             bucket_name = "hackathon2024-debugkings"  # Replace with your S3 bucket name
             s3 = boto3.client('s3')
@@ -74,7 +74,7 @@ def create_app():
 def trigger_lambda_function(file_name):
     lambda_client = boto3.client('lambda', region_name='us-east-1')  # Replace with your Lambda region
     response = lambda_client.invoke(
-        FunctionName='f1',
+        FunctionName='hackathon_debugKings',
         InvocationType='Event',  # Use 'RequestResponse' for synchronous execution
         Payload=json.dumps({'file_name': file_name}),
     )
