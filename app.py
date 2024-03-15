@@ -93,7 +93,7 @@ def trigger_lambda_function(file_name):
     )
     print("printing lambda response")
     print(response)
-    return "hacathon"
+    return response['Payload'].decode('utf-8')
 
 
 
