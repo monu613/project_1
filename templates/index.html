@@ -38,9 +38,9 @@
             document.getElementById('output').appendChild(loadingMessage);
             
             const formData = new FormData();
-            formData.append('file', document.getElementById('fileInput').files[0]);
+            formData.append('fileInput', document.getElementById('fileInput').files[0]);
             try {
-                const response = await fetch('http://107.21.246.79:8080/', {
+                const response = await fetch('http://107.21.246.79:8080/submit', {
                     method: 'POST',
                     body: formData
                 });
