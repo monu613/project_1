@@ -102,7 +102,7 @@ def trigger_lambda_function(file_name):
 
     # print('extracted_response')
     # print(temp)
-    return str('File has been Processed!')
+    return 'File has been Processed!'
 
 
 
