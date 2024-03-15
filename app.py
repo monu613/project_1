@@ -63,7 +63,7 @@ def handle_upload():
             res = trigger_lambda_function(new_filename)
             print('printing res')
             print(res)  
-            return jsonify({'output': res})
+            return jsonify({'report': res})
         except NoCredentialsError:
             return "Credentials are not available for AWS S3."
 
@@ -95,10 +95,11 @@ def trigger_lambda_function(file_name):
     print("printing lambda response")
 
     print(response)
-
+    temp =response['Payload'].read().decode('utf-8')
+    final = temp['report']
     print('extracted_response')
-    print(response['Payload'].read().decode('utf-8'))
-    return str(response['Payload'].read().decode('utf-8'))
+    print(final)
+    return str(final)
 
 
 
