@@ -51,7 +51,7 @@ def create_app():
                                                      Params={'Bucket': bucket_name,
                                                              'Key': new_filename},
                                                      ExpiresIn=3600)  # Link expires in 1 hour
-                #trigger_lambda_function(new_filename)    
+                trigger_lambda_function(new_filename)    
             except NoCredentialsError:
                 return "Credentials are not available for AWS S3."
 
