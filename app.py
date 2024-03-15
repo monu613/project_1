@@ -40,7 +40,7 @@ def create_app():
 
 
     @app.route("/upload", methods=["GET", "POST"])
-    def index():
+    def handle_upload():
         if request.method == "POST":
             uploaded_file = request.files["file-to-save"]
             if not allowed_file(uploaded_file.filename):
