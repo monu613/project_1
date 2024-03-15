@@ -76,8 +76,6 @@ def create_app():
         ##files = File.query.all()
 
         ##return render_template("index.html", files=files)
-    
-    return app
 
 
 
