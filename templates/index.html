@@ -17,6 +17,16 @@
     <script>
         document.getElementById('uploadForm').addEventListener('submit', async function(event) {
             event.preventDefault();
+            
+                // Disable the submit button
+            const submitButton = document.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+                // Show loading message
+            const loadingMessage = document.createElement('span');
+            loadingMessage.textContent = 'Uploading...';
+            document.getElementById('output').appendChild(loadingMessage);
+            
             const formData = new FormData();
             formData.append('file', document.getElementById('fileInput').files[0]);
             try {
@@ -28,6 +38,12 @@
                 document.getElementById('output').innerText = data.report;
             } catch (error) {
                 console.error('Error:', error);
+            }finally {
+                // Re-enable the submit button
+                submitButton.disabled = false;
+
+                // Remove loading message
+                document.getElementById('output').removeChild(loadingMessage);
             }
         });
     </script>
