@@ -91,6 +91,8 @@ def trigger_lambda_function(file_name):
         InvocationType='Event',  # Use 'RequestResponse' for synchronous execution
         Payload=json.dumps({'file_name': file_name}),
     )
+    print("printing lambda response")
+    print(response)
     return "hacathon"
 
 
