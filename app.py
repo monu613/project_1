@@ -32,7 +32,14 @@ def create_app():
 
     db.init_app(app)
 
-    @app.route("/", methods=["GET", "POST"])
+
+    @app.route('/', methods=['GET'])
+    def index():
+        # Render the index.html template
+        return render_template('index.html')
+
+
+    @app.route("/upload", methods=["GET", "POST"])
     def index():
         if request.method == "POST":
             uploaded_file = request.files["file-to-save"]
@@ -52,24 +59,29 @@ def create_app():
                                                      Params={'Bucket': bucket_name,
                                                              'Key': new_filename},
                                                      ExpiresIn=3600)  # Link expires in 1 hour
-                trigger_lambda_function(new_filename)    
+                res = trigger_lambda_function(new_filename)    
+                return jsonify({'report': res})
             except NoCredentialsError:
                 return "Credentials are not available for AWS S3."
 
-            file = File(original_filename=uploaded_file.filename, filename=new_filename,
-                        bucket=bucket_name, region="us-east-1", url=file_url)
+            # file = File(original_filename=uploaded_file.filename, filename=new_filename,
+            #             bucket=bucket_name, region="us-east-1", url=file_url)
 
-            db.session.add(file)
-            db.session.commit()
+            # db.session.add(file)
+            # db.session.commit()
 
-            return redirect(url_for("index"))
+            # return redirect(url_for("index"))
             
             
-        files = File.query.all()
+        ##files = File.query.all()
 
-        return render_template("index.html", files=files)
+        ##return render_template("index.html", files=files)
     
     return app
+
+
+
+
 
 
 def trigger_lambda_function(file_name):

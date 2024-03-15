@@ -3,6 +3,9 @@ import uuid
 from flask import Flask, redirect, url_for, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from botocore.exceptions import NoCredentialsError
+from flask import Flask, request, jsonify, render_template
+import boto3
+import json
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg'}
 
@@ -19,8 +22,12 @@ class File(db.Model):
     region = db.Column(db.String(100))
     url = db.Column(db.String(1000))  # New column to store the pre-signed URL
 
+
+
+
 def create_app():
     app = Flask(__name__)
+    app.debug = True
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
 
     db.init_app(app)
@@ -30,11 +37,11 @@ def create_app():
         if request.method == "POST":
             uploaded_file = request.files["file-to-save"]
             if not allowed_file(uploaded_file.filename):
-                return "FILE NOT ALLOWED!"
+                return "{uploaded_file.filename}" + "File is not allowed!"
 
-            new_filename = uuid.uuid4().hex + '.' + uploaded_file.filename.rsplit('.', 1)[1].lower()
+            new_filename = uploaded_file.filename + uuid.uuid4().hex + '.' + uploaded_file.filename.rsplit('.', 1)[1].lower()
 
-            bucket_name = "intital-code-bucket"  # Replace with your S3 bucket name
+            bucket_name = "hackathon2024-debugkings"  # Replace with your S3 bucket name
             s3 = boto3.client('s3')
 
             try:
@@ -45,20 +52,31 @@ def create_app():
                                                      Params={'Bucket': bucket_name,
                                                              'Key': new_filename},
                                                      ExpiresIn=3600)  # Link expires in 1 hour
+                trigger_lambda_function(new_filename)    
             except NoCredentialsError:
                 return "Credentials are not available for AWS S3."
 
             file = File(original_filename=uploaded_file.filename, filename=new_filename,
-                        bucket=bucket_name, region="ap-south-1", url=file_url)
+                        bucket=bucket_name, region="us-east-1", url=file_url)
 
             db.session.add(file)
             db.session.commit()
 
             return redirect(url_for("index"))
-
+            
+            
         files = File.query.all()
 
         return render_template("index.html", files=files)
-
+    
     return app
 
+
+def trigger_lambda_function(file_name):
+    lambda_client = boto3.client('lambda', region_name='us-east-1')  # Replace with your Lambda region
+    response = lambda_client.invoke(
+        FunctionName='hackathon_debugKings',
+        InvocationType='Event',  # Use 'RequestResponse' for synchronous execution
+        Payload=json.dumps({'file_name': file_name}),
+    )
+    return response
