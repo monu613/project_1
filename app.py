@@ -19,7 +19,7 @@ def allowed_file(filename):
 
 app.debug = True
 
-db.init_app(app)
+
 
 
 @app.route('/', methods=['GET'])
