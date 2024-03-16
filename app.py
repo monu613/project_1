@@ -41,6 +41,7 @@ def handle_upload():
     if request.method == "POST":
         print('method_started')
         uploaded_file = request.files['file']
+        threshold = request.threshold
         # file_data = uploaded_file.read()
         # file_name = uploaded_file.filename
         
@@ -61,8 +62,8 @@ def handle_upload():
                                                             'Key': new_filename},
                                                     ExpiresIn=3600)  # Link expires in 1 hour
             rpt = trigger_lambda_function(new_filename)
-            #print('printing res')
-            #print(rpt)  
+            print('printing threshold')
+            print(threshold)  
             return jsonify({'report': rpt})
         except NoCredentialsError:
             return "Credentials are not available for AWS S3."
