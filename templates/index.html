@@ -95,7 +95,6 @@
     <form method="POST" id="uploadForm" enctype="multipart/form-data">
       <label for="fileInput">Choose File</label>
       <input type="file" id="fileInput" name="file" />
-      <input type="text" id="threshold" name="threshold" />
       <button type="submit" class="btn">Upload</button>
 
     </form>
@@ -192,11 +191,11 @@
             document.getElementById("fileInput").files[0]
           );
 
-          const threshold = document.querySelector("#threshold").innerText
+
           try {
             const response = await fetch("http://107.21.246.79:8080/upload", {
               method: "POST",
-              body: {formData,threshold}
+              body: formData
             });
             const data = await response.json();
             console.log(data);
