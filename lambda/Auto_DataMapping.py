@@ -98,9 +98,25 @@ def append_matched_columns_to_rds(matched_columns, rds_config, table_name):
 
     # Iterate over matched columns and append to RDS table
     cursor = connection.cursor()
-    for target_column, best_match, score in matched_columns:
-        query = f"INSERT INTO {table_name} (target_column, best_match, score) VALUES (%s, %s, %s)"
-        cursor.execute(query, (target_column, best_match, score))
+
+    #Create table
+    # Define SQL statement to create a table
+    create_table_query = """
+    CREATE TABLE IF NOT EXISTS hackathon_debug_report (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        target_column VARCHAR(255),
+        best_match VARCHAR(255),
+        score VARCHAR(255),
+        status VARCHAR(255)
+    )
+    """
+    # Execute the create table query
+    cursor.execute(create_table_query)
+
+    for _, row in matched_columns.iterrows():
+        # Assuming 'df' has columns: 'Target column', 'Best match', 'Score', 'Status'
+        query = f"INSERT INTO {table_name} (target_column, best_match, score, status) VALUES (%s, %s, %s, %s)"
+        cursor.execute(query, (row['Target column'], row['Best match'], row['Score'], row['Status']))
     connection.commit()
     cursor.close()
     connection.close()
@@ -226,17 +242,20 @@ def lambda_handler(event, context):
 
     display_matched_columns(matched_columns)
     
-    df_matched_columns = pd.DataFrame(matched_columns, columns=["Target column", "Best match", "Score"])
+    df_matched = pd.DataFrame(matched_columns, columns=["Target column", "Best match", "Score"])
+    df_matched['Status'] = 'Matched'
 
-    df_matched_columns['Status'] = 'Matched'
+    df_non_matched = pd.DataFrame(non_matched_columns, columns=["Target column", "Best match", "Score"])
+    df_non_matched['Status'] = 'Not Matched'
 
-    df_non_matched_columns = pd.DataFrame(non_matched_columns, columns=["Target column", "Best match", "Score"])
-
-    df_non_matched_columns['Status'] = 'Not Matched'
-
-    send_email_with_dataframes(df_matched_columns,df_non_matched_columns,'mritunjay.singh@saama.com','mrikumar613@gmail.com')
+    send_email_with_dataframes(df_matched,df_non_matched,'anantha19945@gmail.com','anantha19945@gmail.com')
     
-
+    #Merge both the dataframes to provide output to the RDS table
+    # Concatenate matched_df and non_matched_df
+    df_merged_data = pd.concat([df_matched, df_non_matched], ignore_index=True)
+    print("Before writting to RDS")
+    
+    print(df_merged_data)
 
 # # Check if more than 50% of the scores are above 50
 #     if analyze_scores(scores_list):
@@ -251,18 +270,19 @@ def lambda_handler(event, context):
 
     
     # Append matched columns to RDS table
-    # rds_config = {
-    # "host": "hackthon2024-debugkings.csc17vwdnwfj.us-east-1.rds.amazonaws.com",
-    # "user": "Admin",
-    # "password": "SxJ848fY3FSpq5jweUox"}
+    rds_config = {
+    "host": "hackthon2024-debugkings.csc17vwdnwfj.us-east-1.rds.amazonaws.com",
+    "user": "admin",
+    "password": "SxJ848fY3FSpq5jweUox",
+    "port": 3306,
+    "db":'debug_kings'
+    }
+ 
+     #mysqlconnect()
     
-    
-
-    
-    mysqlconnect()
-    
-    # table_name = "matched_columns"
-    # append_matched_columns_to_rds(matched_columns, rds_config, table_name)
+    print(df_merged_data.columns)
+    table_name = "hackathon_debug_report"
+    #append_matched_columns_to_rds(df_merged_data, rds_config, table_name)
 
     # Return the report
     return {
