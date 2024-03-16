@@ -88,7 +88,7 @@ def trigger_lambda_function(file_name):
     lambda_client = boto3.client('lambda', region_name='us-east-1')  # Replace with your Lambda region
     response = lambda_client.invoke(
         FunctionName='hackathon_debugKings',
-        InvocationType='RequestResponse',  # Use 'RequestResponse' for synchronous execution
+        InvocationType='Event',  # Use 'RequestResponse' for synchronous execution
         Payload=json.dumps({'file_name': file_name}),
     )
     # print("printing lambda response")
