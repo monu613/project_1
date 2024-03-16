@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify, render_template
 import boto3
 import json
 
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'csv'}
+ALLOWED_EXTENSIONS = {'xlsx', 'csv', 'json'}
 
 app = Flask(__name__)
 
