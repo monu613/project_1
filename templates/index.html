@@ -120,6 +120,7 @@
         document
           .querySelector("[type=file]")
           .addEventListener("change", function () {
+            document.querySelector("#output").textContent=''
             var file = this.files[0];
             var formdata = new FormData();
             formdata.append("file", file);
