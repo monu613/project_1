@@ -6,6 +6,9 @@ from difflib import get_close_matches
 from fuzzywuzzy import process
 import csv
 import pymysql
+from botocore.exceptions import ClientError
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 s3_client = boto3.client('s3')
 
@@ -74,13 +77,16 @@ def read_file(file_path,bucket_name,file_name):
 
 def match_columns_with_fuzzywuzzy(source_columns, target_columns, threshold=70):
     matched_columns = []
+    non_matched_columns = []
 
     # Iterate through target columns and find the closest match from the source
     for target_column in target_columns:
         best_match, score = process.extractOne(target_column, source_columns)
         if score >= threshold:
             matched_columns.append((target_column, best_match, score))
-    return matched_columns
+        else:
+            non_matched_columns.append((target_column, best_match, score))
+    return matched_columns,non_matched_columns
     
 def display_matched_columns(matched_columns):
     print("Matched Columns:")
@@ -98,6 +104,93 @@ def append_matched_columns_to_rds(matched_columns, rds_config, table_name):
     connection.commit()
     cursor.close()
     connection.close()
+
+## Email Methods 
+
+def send_email_with_dataframes(df1, df2, recipient_email, sender_email):
+    # Convert DataFrames to HTML tables
+    html_content1 = df1.to_html(index=False)
+    html_content2 = df2.to_html(index=False)
+
+    # Create a multipart message
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = 'Data Analysis Results'
+    msg['From'] = sender_email
+    msg['To'] = recipient_email
+
+    # Create HTML content
+    html_body = f"""
+    <html>
+    <head></head>
+    <body>
+    <p>Here are the results of data analysis:</p>
+    <p><b>First DataFrame:</b></p>
+    {html_content1}
+    <p><b>Second DataFrame:</b></p>
+    {html_content2}
+    </body>
+    </html>
+    """
+
+    # Attach HTML content to the email
+    msg.attach(MIMEText(html_body, 'html'))
+
+    # Send the email
+    ses_client = boto3.client('ses', region_name='us-east-1')
+    try:
+        response = ses_client.send_raw_email(
+            Source=sender_email,
+            Destinations=[recipient_email],
+            RawMessage={'Data': msg.as_string()}
+        )
+        print("Email sent! Message ID:", response['MessageId'])
+    except ClientError as e:
+        print("Error sending email:", e)
+
+
+
+# def send_mail_for_file_reject(message):
+    
+
+#     # Create a new SES resource and specify a region
+#     ses_client = boto3.client('ses', region_name='us-east-1')
+
+#     # Try to send the email
+#     try:
+#         # Provide the contents of the email.
+#         response = ses_client.send_email(
+#             Destination={
+#                 'ToAddresses': [
+#                     'mritunjay.singh@saama.com',
+#                 ],
+#             },
+#             Message={
+#                 'Body': {
+#                     'Text': {
+#                         'Charset': 'UTF-8',
+#                         'Data': message,
+#                     },
+#                 },
+#                 'Subject': {
+#                     'Charset': 'UTF-8',
+#                     'Data': 'File Analysis Results',
+#                 },
+#             },
+#             Source='mritunjay.singh@saama.com',
+#         )
+#     # Display an error if something goes wrong.
+#     except ClientError as e:
+#         print(e.response['Error']['Message'])
+#     else:
+#         print("Email sent! Message ID:", response['MessageId'])
+
+
+def analyze_scores(scores):
+    total_rows = len(scores)
+    score_above_50 = sum(score > 50 for score in scores)
+    percentage_above_50 = (score_above_50 / total_rows) * 100
+    return percentage_above_50 > 50
+
 
 
 def lambda_handler(event, context):
@@ -129,9 +222,33 @@ def lambda_handler(event, context):
     source_columns = df.columns.tolist()
     print(source_columns)
     # Match columns using fuzzywuzzy
-    matched_columns = match_columns_with_fuzzywuzzy(source_columns, target_columns)
+    matched_columns,non_matched_columns = match_columns_with_fuzzywuzzy(source_columns, target_columns)
 
     display_matched_columns(matched_columns)
+    
+    df_matched_columns = pd.DataFrame(matched_columns, columns=["Target column", "Best match", "Score"])
+
+    df_matched_columns['Status'] = 'Matched'
+
+    df_non_matched_columns = pd.DataFrame(non_matched_columns, columns=["Target column", "Best match", "Score"])
+
+    df_non_matched_columns['Status'] = 'Not Matched'
+
+    send_email_with_dataframes(df_matched_columns,df_non_matched_columns,'mritunjay.singh@saama.com','mrikumar613@gmail.com')
+    
+
+
+# # Check if more than 50% of the scores are above 50
+#     if analyze_scores(scores_list):
+#     # If yes, send email with data list
+#         ##data_list = matched_columns
+#         #recipient_email = 'recipient_email@example.com'
+#         #sender_email = 'sender_email@example.com'
+#         send_email_with_data(df_email)
+#     else:
+#     # If no, send a custom message
+#         send_mail_for_file_reject("Less than 50% of Columns have mathch scores are above 70.<br><br> Hence file is rejected.")
+
     
     # Append matched columns to RDS table
     # rds_config = {
