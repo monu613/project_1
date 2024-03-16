@@ -14,7 +14,7 @@
         justify-content: center;
         flex-direction: column;
         gap: 32px;
-        background: #393939;
+        background: lightgray;
       }
 
       h1 {
@@ -85,7 +85,7 @@
 
       #size span,
       #type span,
-      #name span {
+      #name span,.loadingMessage {
         color: #ea4026;
       }
     </style>
@@ -180,7 +180,8 @@
 
           // Show loading message
           const loadingMessage = document.createElement("span");
-          loadingMessage.textContent = "Uploading...";
+          loadingMessage.classList.add("loadingMessage")
+          loadingMessage.textContent = "File is being processed...";
           document.getElementById("output").appendChild(loadingMessage);
 
           const formData = new FormData();
