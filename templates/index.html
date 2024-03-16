@@ -200,15 +200,18 @@
             const data = await response.json();
             console.log(data);
             document.getElementById("output").innerText = data.report;
+            //Remove loading message
+            document.querySelector("#fileInput").value = "";
+            loadingMessage.textContent = "";
           } catch (error) {
             console.error("Error:", error);
           } finally {
             // Re-enable the submit button
             submitButton.disabled = false;
 
-            //Remove loading message
-            loadingMessage.textContent = "";
-            document.querySelector("#fileInput").value = "";
+
+            
+            
           }
         });
     </script>
