@@ -207,7 +207,7 @@
             submitButton.disabled = false;
 
             //Remove loading message
-            document.getElementById('output').removeChild(loadingMessage);
+            loadingMessage.textContent = "";
             document.querySelector("#fileInput").value = "";
           }
         });
