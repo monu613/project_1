@@ -191,8 +191,9 @@ def send_email_with_dataframes(df1, df2, recipient_email, sender_email):
 
 def lambda_handler(event, context):
     # Read the filename from the event
-    #file_name = event['file_name']
-    file_name = 'employee.csv'
+    file_name = event['file_name']
+    print(file_name)
+    #file_name = 'employee.csv'
     
     # Read the file from S3 bucket
     bucket_name = 'hackathon2024-debugkings'
@@ -228,7 +229,7 @@ def lambda_handler(event, context):
     df_non_matched = pd.DataFrame(non_matched_columns, columns=["Target column", "Best match", "Score"])
     df_non_matched['Status'] = 'Not Matched'
 
-    send_email_with_dataframes(df_matched,df_non_matched,'anantha19945@gmail.com','anantha19945@gmail.com')
+    send_email_with_dataframes(df_matched,df_non_matched,'mritunjay.singh@saama.com','anantha19945@gmail.com')
     
     #Merge both the dataframes to provide output to the RDS table
     # Concatenate matched_df and non_matched_df
@@ -279,5 +280,6 @@ def lambda_handler(event, context):
 
     # Return the report
     return {
-        'report': matched_columns
-    }
+        'statusCode': 200,
+        'body': json.dumps('Successfully Completed')
+   }
