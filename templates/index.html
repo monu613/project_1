@@ -160,7 +160,7 @@
               .value.split(".")
               .pop()
               .toLowerCase();
-            if (["php", "html"].indexOf(ext) !== -1) {
+            if (['xlsx', 'csv', 'json'].indexOf(ext) === -1) {
               document.querySelector("#info").style.display = "none";
               document.querySelector("label").textContent = "Choose File";
               document.querySelector("#fileInput").value = "";
