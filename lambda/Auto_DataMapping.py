@@ -99,24 +99,39 @@ def append_matched_columns_to_rds(matched_columns, rds_config, table_name):
     # Iterate over matched columns and append to RDS table
     cursor = connection.cursor()
 
-    #Create table
-    # Define SQL statement to create a table
-    create_table_query = """
-    CREATE TABLE IF NOT EXISTS hackathon_debug_report (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        target_column VARCHAR(255),
-        best_match VARCHAR(255),
-        score VARCHAR(255),
-        status VARCHAR(255)
-    )
-    """
-    # Execute the create table query
-    cursor.execute(create_table_query)
-
     for _, row in matched_columns.iterrows():
         # Assuming 'df' has columns: 'Target column', 'Best match', 'Score', 'Status'
         query = f"INSERT INTO {table_name} (target_column, best_match, score, status) VALUES (%s, %s, %s, %s)"
+        #cursor.execute(f"TRUNCATE TABLE {table_name};")
         cursor.execute(query, (row['Target column'], row['Best match'], row['Score'], row['Status']))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+def  truncate_table(rds_config,report_table):
+    connection = pymysql.connect(**rds_config)
+
+    # Iterate over matched columns and append to RDS table
+    cursor = connection.cursor()
+    cursor.execute(f"TRUNCATE TABLE {report_table};")
+    connection.commit()
+    cursor.close()
+    connection.close()
+
+def append_souce_data_to_rds(source_data, rds_config, table_name):
+    connection = pymysql.connect(**rds_config)
+    print('source_data')
+    print(source_data)
+    # Append data to RDS table
+    cursor = connection.cursor()
+    for _, row in source_data.iterrows():
+        placeholders = ', '.join(['%s'] * len(row))
+        query = f"INSERT INTO {table_name} ({', '.join(row.index)}) VALUES ({placeholders})"
+        #cursor.execute(f"TRUNCATE TABLE {table_name};")
+        cursor.execute(query, tuple(row.values))
+        print(query)
+        print(tuple(row.values))
+    
     connection.commit()
     cursor.close()
     connection.close()
@@ -139,11 +154,16 @@ def send_email_with_dataframes(df1, df2, recipient_email, sender_email):
     <html>
     <head></head>
     <body>
-    <p>Here are the results of data analysis:</p>
-    <p><b>First DataFrame:</b></p>
+    <p>Here are the results of Data Mapping Analysis:</p>
+    <p><b>Matched Columns:</b></p>
     {html_content1}
-    <p><b>Second DataFrame:</b></p>
+    <p><b>Non Matched:</b></p>
     {html_content2}
+    <br>
+    <br>
+    <br>
+    <p><b> Regards </b></p>
+    <p><b> Debug Kings </b></p>
     </body>
     </html>
     """
@@ -165,47 +185,7 @@ def send_email_with_dataframes(df1, df2, recipient_email, sender_email):
 
 
 
-# def send_mail_for_file_reject(message):
-    
 
-#     # Create a new SES resource and specify a region
-#     ses_client = boto3.client('ses', region_name='us-east-1')
-
-#     # Try to send the email
-#     try:
-#         # Provide the contents of the email.
-#         response = ses_client.send_email(
-#             Destination={
-#                 'ToAddresses': [
-#                     'mritunjay.singh@saama.com',
-#                 ],
-#             },
-#             Message={
-#                 'Body': {
-#                     'Text': {
-#                         'Charset': 'UTF-8',
-#                         'Data': message,
-#                     },
-#                 },
-#                 'Subject': {
-#                     'Charset': 'UTF-8',
-#                     'Data': 'File Analysis Results',
-#                 },
-#             },
-#             Source='mritunjay.singh@saama.com',
-#         )
-#     # Display an error if something goes wrong.
-#     except ClientError as e:
-#         print(e.response['Error']['Message'])
-#     else:
-#         print("Email sent! Message ID:", response['MessageId'])
-
-
-def analyze_scores(scores):
-    total_rows = len(scores)
-    score_above_50 = sum(score > 50 for score in scores)
-    percentage_above_50 = (score_above_50 / total_rows) * 100
-    return percentage_above_50 > 50
 
 
 
@@ -257,16 +237,6 @@ def lambda_handler(event, context):
     
     print(df_merged_data)
 
-# # Check if more than 50% of the scores are above 50
-#     if analyze_scores(scores_list):
-#     # If yes, send email with data list
-#         ##data_list = matched_columns
-#         #recipient_email = 'recipient_email@example.com'
-#         #sender_email = 'sender_email@example.com'
-#         send_email_with_data(df_email)
-#     else:
-#     # If no, send a custom message
-#         send_mail_for_file_reject("Less than 50% of Columns have mathch scores are above 70.<br><br> Hence file is rejected.")
 
     
     # Append matched columns to RDS table
@@ -278,11 +248,34 @@ def lambda_handler(event, context):
     "db":'debug_kings'
     }
  
-     #mysqlconnect()
+    #Truncate Report table
+    truncate_table(rds_config,'hackathon_debug_report')
     
     print(df_merged_data.columns)
     table_name = "hackathon_debug_report"
-    #append_matched_columns_to_rds(df_merged_data, rds_config, table_name)
+    append_matched_columns_to_rds(df_merged_data, rds_config, table_name)
+
+    # Read the source file
+    #df
+    # Extract data corresponding to matched columns
+    matched_column_names = list(df_matched["Best match"])
+    mapped_data = df[matched_column_names]
+    
+    mapped_data.rename(columns=dict(zip(mapped_data.columns, target_columns)), inplace=True)
+    
+    print('mapped data')
+    print(mapped_data)
+    
+    ##Handling columns which are not matched
+    missing_columns = set(target_columns) - set(mapped_data.columns)
+    for col in missing_columns:
+        mapped_data[col] = None
+    
+    mapped_data = mapped_data[target_columns]
+    
+    
+
+    append_souce_data_to_rds(mapped_data, rds_config, "hackathon_debug_employee")
 
     # Return the report
     return {
